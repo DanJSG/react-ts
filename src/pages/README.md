@@ -1,2 +1,3 @@
-Put your React page components in this directory
-TODO delete this file
+# Pages
+
+Use this directory to store your full screen React page components.

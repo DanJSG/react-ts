@@ -1,2 +1,4 @@
-Put your TypeScript functions in this directory
-TODO delete this file
+# Functions
+
+Use this directory to store your TypeScript (.ts) functions.
+

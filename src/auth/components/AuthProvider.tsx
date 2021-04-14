@@ -8,13 +8,7 @@ interface Props {
     children: React.ReactNode;
 };
 
-interface User {
-    id: number;
-    email: string;
-};
-
 interface AuthContext {
-    user?: User;
     authenticated: boolean | undefined;
     login?: () => void;
     signup?: () => void;
@@ -28,7 +22,6 @@ export const AuthContext = React.createContext<AuthContext>({ authenticated: und
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
 
-    const [user, setUser] = useState();
     const [authenticated, setAuthenticated] = useState<boolean | undefined>(undefined);
 
     const { state, codeChallengeAndVerifier } = usePKCE();
@@ -83,7 +76,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     }
 
     const contextValue: AuthContext = {
-        user: user,
         authenticated: authenticated,
         login: login,
         signup: signup,

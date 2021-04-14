@@ -1,2 +1,3 @@
-Put your images and graphics files in this directory
-TODO delete this file
+# Images
+
+Use this directory to store your images and graphics files.

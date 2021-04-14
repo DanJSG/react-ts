@@ -1,2 +1,3 @@
-Put your react components in this directory
-TODO delete this file
+# Components
+
+Use this directory to store your React (.tsx) components. Create subdirectories to group together similar components.

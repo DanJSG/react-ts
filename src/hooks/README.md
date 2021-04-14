@@ -1,2 +1,3 @@
-Put your custom React hooks in this directory
-TODO delete this file
+# Hooks
+
+Use this directory to store your custom React hooks.

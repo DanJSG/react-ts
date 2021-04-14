@@ -1,2 +1,3 @@
-Put your TypeScript types and interfaces in this directory
-TODO delete this file
+# Types
+
+Use this directory to store your global TypeScript types and interfaces.

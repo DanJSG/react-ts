@@ -1,12 +1,42 @@
-# Getting Started with Create React App
+# React TypeScript Project Template
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a template repository for a front-end application built using React with TypeScript.
+This template was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This template includes the following:
 
-**THIS TEMPLATE IS A WORK IN PROGRESS AND IS NOT YET FINISHED**
+* React Router (react-router-dom) for application routing
+* Private routing component
+* Simple authentication hook for OAuth2 authentication using the Authorization Code Flow with PKCE
+* Sass Compiler
+* Bootstrap
 
+## The **`useAuth()`** Hook
+The `useAuth()` hook returns a global authentication context containing:
 
-TODO rewrite this README to be relevant to the template \
-TODO rewrite empty directory README files to be formatted better rather than just having placeholder info
+* **`authenticated`**: `true` if authenticated, `false` if not, and `undefined` during the loading state
+* **`login()`**: function which redirects to the OAuth2 provider server logging in to an account
+* **`signup()`**: function which redirects to the OAuth2 provider server for creating an account
+* **`logout()`**: function which revokes your tokens and removes your authentication
+* **`getRefreshToken()`**: function which fetches a refresh token from the OAuth2 provider's API
+* **`refreshAccessToken()`**: function which fetches a new access token from the OAuth2 provider's API
+* **`checkAuth()`**: function which checks if the application has access to the resource server
+
+It is most likely to use this hook via object destructuring assignment, to access the specific elements you need. For example:
+
+```ts
+const { getRefreshToken, refreshAccessToken } = useAuth();
+```
+
+## The **`PrivateRoute`** Component
+The `PrivateRoute` component is used exactly like a normal `Route` component from the React Router library. However, this component hooks into the global authentication context and only renders the component if the `authentication` variable is true. Otherwise, it redirects to a specified page. 
+
+An example usage of this component may be:
+
+```tsx
+<PrivateRoute exact path="/account/settings">
+    <AccountSettings />
+</PrivateRoute>
+```
 
 ## Available Scripts
 
