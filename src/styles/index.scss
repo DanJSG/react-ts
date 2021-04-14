@@ -1,0 +1,29 @@
+@import '~bootstrap/scss/bootstrap.scss';
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+div#root {
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+}
+
+.spinner-rainbow {
+    color: $warning;
+    animation: rainbow-text-animation 1.5s infinite linear;
+}
+
+@keyframes rainbow-text-animation {
+    50% {
+        color: $primary;
+    }
+    100% {
+        color: $warning;
+    }
+}
