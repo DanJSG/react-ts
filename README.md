@@ -2,6 +2,9 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+TODO rewrite this README to be relevant to the template
+TODO rewrite empty directory README files to be formatted better rather than just having placeholder info
+
 ## Available Scripts
 
 In the project directory, you can run:
