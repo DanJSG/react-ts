@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE_PATH, API_HOST, API_PROTOCOL, OAUTH_BASE_PATH, OAUTH_HOST, OAUTH_PROTOCOL } from "../../constants/environment";
-import { generateCodeChallenge, generateState } from "../functions/oauthPKCE";
+import { OAUTH_API_BASE_PATH, OAUTH_API_HOST, OAUTH_API_PROTOCOL, OAUTH_HOST, OAUTH_LOGIN_PATH, OAUTH_PROTOCOL, OAUTH_REDIRECT_URI, OAUTH_SIGNUP_PATH } from "../../constants/environment";
+import { sendAccessRequest } from "../functions/sendAccessRequest";
 import { sendTokenRequest } from "../functions/sendTokenRequest";
+import { usePKCE } from "../hooks/usePKCE";
 
 interface Props {
     children: React.ReactNode;
@@ -17,7 +18,8 @@ interface AuthContext {
     authenticated: boolean | undefined;
     login?: () => void;
     signup?: () => void;
-    logout?: () => void;
+    logout?: () => Promise<void>;
+    getRefreshToken?: (code: string, state: string) => Promise<boolean>;
     refreshAccessToken?: () => Promise<void>;
     checkAuth?: () => Promise<void>
 };
@@ -29,48 +31,55 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const [user, setUser] = useState();
     const [authenticated, setAuthenticated] = useState<boolean | undefined>(undefined);
 
-    // TODO move these into usePKCE hook
-    const [codeChallengeAndVerifier] = useState(generateCodeChallenge());
-    const [state] = useState(generateState());
+    const { state, codeChallengeAndVerifier } = usePKCE();
 
-    // don't include in this form in general oauth template - only relevant for auth provider
-    // in general oauth template generate the state and code challenge, then redirect to auth provider login with 
-    // query params in URI
     const login = (): void => {
-        // TODO redirect to auth provider with relevant query strings
+        sessionStorage.setItem("code_verifier", codeChallengeAndVerifier.codeVerifier);
+        const url = `${OAUTH_PROTOCOL}//${OAUTH_HOST}${OAUTH_LOGIN_PATH}` +
+            `?redirect_uri=${OAUTH_REDIRECT_URI}` +
+            `&state=${state}` +
+            `&code_challenge=${codeChallengeAndVerifier.codeChallenge}` +
+            `&code_challenge_method=${codeChallengeAndVerifier.codeChallengeMethod}`;
+        window.location.href = url;
     }
 
-    // don't include in general oauth template - only relevant for auth provider
-    // in general oauth template generate the state and code challenge, then redirect to auth provider login with 
-    // query params in URI
     const signup = (): void => {
-        // TODO redirect to auth provider with relevant query strings
+        sessionStorage.setItem("code_verifier", codeChallengeAndVerifier.codeVerifier);
+        const url = `${OAUTH_PROTOCOL}//${OAUTH_HOST}${OAUTH_SIGNUP_PATH}` +
+            `?redirect_uri=${OAUTH_REDIRECT_URI}` +
+            `&state=${state}` +
+            `&code_challenge=${codeChallengeAndVerifier.codeChallenge}` +
+            `&code_challenge_method=${codeChallengeAndVerifier.codeChallengeMethod}`;
+        window.location.href = url;
     }
 
-    const logout = (): void => {
-        // TODO delete cookies, make user undefined, set auth to false
+    const logout = async (): Promise<void> => {
+        const url = `${OAUTH_API_PROTOCOL}//${OAUTH_API_HOST}${OAUTH_API_BASE_PATH}/token/revoke`;
+        await sendTokenRequest(url);
+        setAuthenticated(false);
+    }
+
+    const getRefreshToken = async (code: string, state: string): Promise<boolean> => {
+        const codeVerifier = sessionStorage.getItem("code_verifier");
+        sessionStorage.removeItem("code_verifier");
+        const url = `${OAUTH_API_PROTOCOL}//${OAUTH_API_HOST}${OAUTH_API_BASE_PATH}/token` +
+            `?code_verifier=${codeVerifier}` +
+            `&redirect_uri=${OAUTH_REDIRECT_URI}` +
+            `&grant_type=authorization_code` +
+            `&code=${code}` +
+            `&state=${state}`;
+        return await sendTokenRequest(url);
     }
 
     const refreshAccessToken = async (): Promise<void> => {
-        const url = `${OAUTH_PROTOCOL}//${OAUTH_HOST}${OAUTH_BASE_PATH}/token?grant_type=refresh_token`;
+        const url = `${OAUTH_API_PROTOCOL}//${OAUTH_API_HOST}${OAUTH_API_BASE_PATH}/token?grant_type=refresh_token`;
         const result = await sendTokenRequest(url);
         setAuthenticated(result);
     }
 
     const checkAuth = async () => {
-        try {
-            const url = `${API_PROTOCOL}//${API_HOST}${API_BASE_PATH}/access`;
-            // TODO refactor into function
-            const response = await fetch(url, { method: "GET", credentials: "include" });
-            if (response.status !== 200) {
-                setAuthenticated(false);
-                return;
-            }
-            setAuthenticated(true);
-        } catch (error) {
-            console.error(error);
-            setAuthenticated(false);
-        }
+        const accessGranted = await sendAccessRequest();
+        setAuthenticated(accessGranted);
     }
 
     const contextValue: AuthContext = {
@@ -79,6 +88,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         login: login,
         signup: signup,
         logout: logout,
+        getRefreshToken: getRefreshToken,
         refreshAccessToken: refreshAccessToken,
         checkAuth: checkAuth
     };

@@ -1,6 +1,6 @@
 import { SHA256 } from 'crypto-js';
 
-interface CodeChallenge {
+export interface CodeChallenge {
     codeVerifier: string;
     codeChallenge: string;
     codeChallengeMethod: "S256";
