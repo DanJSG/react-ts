@@ -11,7 +11,7 @@ This template includes the following:
 * Bootstrap
 
 ## The **`useAuth()`** Hook
-The `useAuth()` hook returns a global authentication context containing:
+The `useAuth()` hook returns a global authentication context object containing:
 
 * **`authenticated`**: `true` if authenticated, `false` if not, and `undefined` during the loading state
 * **`login()`**: function which redirects to the OAuth2 provider server logging in to an account
@@ -21,7 +21,7 @@ The `useAuth()` hook returns a global authentication context containing:
 * **`refreshAccessToken()`**: function which fetches a new access token from the OAuth2 provider's API
 * **`checkAuth()`**: function which checks if the application has access to the resource server
 
-It is most likely to use this hook via object destructuring assignment, to access the specific elements you need. For example:
+It is most likely you will want to use this hook via object destructuring assignment, to access the specific elements you need. For example:
 
 ```ts
 const { getRefreshToken, refreshAccessToken } = useAuth();
